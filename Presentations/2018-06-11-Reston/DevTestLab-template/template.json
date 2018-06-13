@@ -1,0 +1,60 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "name": {
+            "type": "string",
+            "defaultValue": ""
+        },
+        "regionId": {
+            "type": "string",
+            "defaultValue": ""
+        }
+    },
+    "resources": [
+        {
+            "apiVersion": "2017-04-26-preview",
+            "name": "[parameters('name')]",
+            "type": "Microsoft.DevTestLab/labs",
+            "location": "[parameters('regionId')]",
+            "tags": {
+                "ProjectName": "Unisys"
+            },
+            "properties": {
+                "labStorageType": "Premium"
+            },
+            "resources": [
+                {
+                    "apiVersion": "2017-04-26-preview",
+                    "name": "LabVmsShutdown",
+                    "location": "[parameters('regionId')]",
+                    "type": "schedules",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.DevTestLab/labs', parameters('name'))]"
+                    ],
+                    "properties": {
+                        "status": "Enabled",
+                        "timeZoneId": "Eastern Standard Time",
+                        "dailyRecurrence": {
+                            "time": "1900"
+                        },
+                        "taskType": "LabVmsShutdownTask",
+                        "notificationSettings": {
+                            "status": "Disabled",
+                            "timeInMinutes": 30
+                        }
+                    }
+                },
+                {
+                    "apiVersion": "2017-04-26-preview",
+                    "name": "[concat('Dtl', parameters('name'))]",
+                    "type": "virtualNetworks",
+                    "location": "[parameters('regionId')]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.DevTestLab/labs', parameters('name'))]"
+                    ]
+                }
+            ]
+        }
+    ]
+}
